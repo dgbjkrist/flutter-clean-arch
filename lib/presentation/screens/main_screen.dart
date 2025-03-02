@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../core/session/session_manager.dart';
+import 'lock_screen.dart';
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -15,6 +18,17 @@ class _MainScreenState extends State<MainScreen> {
     // SettingsScreen(),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    SessionManager().startTimer(onTimeout: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => LockScreen()),
+      );
+    });
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -23,18 +37,21 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _screens[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.swap_horiz), label: "Opérations"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: "Réglages"),
-        ],
+    return GestureDetector(
+      onTap: () => SessionManager().resetTimer(),
+      child: Scaffold(
+        body: _screens[_selectedIndex],
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.swap_horiz), label: "Opérations"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.settings), label: "Réglages"),
+          ],
+        ),
       ),
     );
   }

@@ -3,7 +3,7 @@ import 'package:cleanarchi/presentation/screens/auth/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'core/di.dart';
+import 'core/di/service_locator.dart';
 
 void main() {
   setupLocator();
