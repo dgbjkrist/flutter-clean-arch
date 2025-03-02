@@ -1,0 +1,10 @@
+{
+  "java.compile.nullAnalysis.mode": "automatic",
+  "files.exclude": {
+    ".idea": true,
+    ".vscode": true,
+    ".dart_tool": true,
+    "cleanarchi.iml": true,
+    ".metadata": true
+  }
+}
