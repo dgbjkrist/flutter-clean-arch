@@ -36,7 +36,9 @@ class AuthBloc extends Cubit<AuthState> {
     try {
       final user = await loginUseCase.execute(email, password);
       emit(AuthAuthenticated(user));
-    } catch (e) {
+    } catch (e, st) {
+      print("e ==== $e");
+      print("st ==== $st");
       emit(AuthError("Erreur de connexion"));
     }
   }
@@ -52,6 +54,7 @@ class AuthBloc extends Cubit<AuthState> {
   }
 
   Future<void> logout() async {
+    emit(AuthLoading());
     await logoutUseCase.execute();
     emit(AuthUnauthenticated());
   }

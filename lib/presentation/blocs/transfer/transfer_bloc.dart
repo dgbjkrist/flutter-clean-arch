@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../domain/usecases/make_transfer.dart';
+
+import '../../../domain/usecases/make_transfer_usecase.dart';
 
 abstract class TransferState {}
 
@@ -15,17 +16,17 @@ class TransferError extends TransferState {
 }
 
 class TransferBloc extends Cubit<TransferState> {
-  final MakeTransfer makeTransfer;
+  final MakeTransferUseCase makeTransfer;
 
   TransferBloc(this.makeTransfer) : super(TransferInitial());
 
   void transfer(String senderId, String recipientId, double amount) async {
-    emit(TransferLoading());
+    emit(TransferLoading()); // 🔄 Affiche le loader
     try {
       await makeTransfer.execute(senderId, recipientId, amount);
-      emit(TransferSuccess());
+      emit(TransferSuccess()); // ✅ Succès
     } catch (e) {
-      emit(TransferError(e.toString()));
+      emit(TransferError(e.toString())); // ❌ Erreur avec message
     }
   }
 }

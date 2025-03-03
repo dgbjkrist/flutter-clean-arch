@@ -14,6 +14,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<User> login(String email, String password) async {
     await Future.delayed(Duration(seconds: 2));
+    _currentUser ??= User.empty();
     _currentUser = _currentUser!.copyWith(id: "123", email: email);
     return _currentUser!;
   }

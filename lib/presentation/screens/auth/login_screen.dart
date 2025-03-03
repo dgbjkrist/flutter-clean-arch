@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
-import '../main_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,10 +17,7 @@ class LoginScreen extends StatelessWidget {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const MainScreen()),
-            );
+            context.go('/');
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.message)));
@@ -27,7 +26,9 @@ class LoginScreen extends StatelessWidget {
         builder: (context, state) {
           return Column(
             children: [
-              TextField(controller: emailController),
+              TextField(
+                controller: emailController,
+              ),
               TextField(controller: passwordController, obscureText: true),
               if (state is AuthLoading) const CircularProgressIndicator(),
               ElevatedButton(

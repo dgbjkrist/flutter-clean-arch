@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../core/session/session_manager.dart';
+import 'home/home_screen.dart';
 import 'lock_screen.dart';
+import 'operation/operation_screen.dart';
+import 'settings/settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -13,9 +16,9 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   final List<Widget> _screens = [
-    // HomeScreen(),
-    // OperationsScreen(),
-    // SettingsScreen(),
+    HomeScreen(),
+    OperationsScreen(),
+    SettingsScreen(),
   ];
 
   @override
