@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../blocs/transfer/fees_bloc.dart';
-import '../../blocs/transfer_cubit.dart';
+import '../../cubits/transfer/fees_bloc.dart';
+import '../../cubits/transfer_cubit.dart';
 import 'recipient_screen.dart';
 
 class AmountScreen extends StatelessWidget {

@@ -43,6 +43,9 @@ dependencies:
   json_annotation: ^4.9.0
   freezed_annotation: ^2.4.4
   go_router: ^14.8.1
+  stellar_flutter_sdk: ^1.9.4
+  timeago: ^3.7.1
+  shared_preferences: ^2.3.3
 
 dev_dependencies:
   flutter_test:

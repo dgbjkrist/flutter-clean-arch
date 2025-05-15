@@ -23,12 +23,12 @@ class AuthError extends AuthState {
   AuthError(this.message);
 }
 
-class AuthBloc extends Cubit<AuthState> {
+class AuthCubit extends Cubit<AuthState> {
   final RegisterUseCase registerUseCase;
   final LoginUseCase loginUseCase;
   final LogoutUseCase logoutUseCase;
 
-  AuthBloc(this.registerUseCase, this.loginUseCase, this.logoutUseCase)
+  AuthCubit(this.registerUseCase, this.loginUseCase, this.logoutUseCase)
       : super(AuthInitial());
 
   Future<void> login(String email, String password) async {

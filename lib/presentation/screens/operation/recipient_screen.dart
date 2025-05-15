@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../blocs/recipients/recipients_bloc.dart';
-import '../../blocs/transfer_cubit.dart';
+import '../../cubits/recipients/recipients_bloc.dart';
+import '../../cubits/transfer_cubit.dart';
 import 'summary_screen.dart';
 
 class RecipientScreen extends StatefulWidget {
@@ -74,7 +74,8 @@ class _RecipientScreenState extends State<RecipientScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => SummaryScreen()),
+                                      builder: (context) =>
+                                          const SummaryScreen()),
                                 );
                               },
                             );
@@ -82,7 +83,8 @@ class _RecipientScreenState extends State<RecipientScreen> {
                         ),
                       );
                     }
-                    return Center(child: Text("Aucun destinataire trouvé."));
+                    return const Center(
+                        child: Text("Aucun destinataire trouvé."));
                   },
                 ),
               )

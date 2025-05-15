@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/lock_screen.dart';
 import '../../presentation/screens/main_screen.dart';
-import '../../presentation/blocs/auth/auth_bloc.dart';
+import '../../presentation/cubits/auth/auth_cubit.dart';
 
 class AppRouter {
   static GoRouter getRouter(BuildContext context) {
@@ -25,7 +25,7 @@ class AppRouter {
         ),
       ],
       redirect: (context, state) {
-        final authState = context.read<AuthBloc>().state;
+        final authState = context.read<AuthCubit>().state;
 
         if (authState is AuthAuthenticated) {
           // Utilisateur connecté, on bloque l'accès à la page de connexion

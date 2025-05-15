@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../blocs/transfer/transfer_bloc.dart';
-import '../../blocs/transfer_cubit.dart';
+import '../../cubits/transfer/transfer_bloc.dart';
+import '../../cubits/transfer_cubit.dart';
 
 class SummaryScreen extends StatelessWidget {
+  const SummaryScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final transferState = context.watch<TransferCubit>().state;
     final transferBloc = context.read<TransferBloc>();
 
     return Scaffold(
-      appBar: AppBar(title: Text("Résumé du Transfert")),
+      appBar: AppBar(title: const Text("Résumé du Transfert")),
       body: BlocConsumer<TransferBloc, TransferState>(
         listener: (context, state) {
           if (state is TransferSuccess) {
@@ -26,7 +28,7 @@ class SummaryScreen extends StatelessWidget {
         },
         builder: (context, state) {
           if (state is TransferLoading) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           return Column(
@@ -36,7 +38,7 @@ class SummaryScreen extends StatelessWidget {
               Text("Frais : ${transferState.fees} USD"),
               Text(
                   "Destinataire : ${transferState.recipient?.name ?? "Non défini"}"),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   transferBloc.transfer(
@@ -45,7 +47,7 @@ class SummaryScreen extends StatelessWidget {
                     transferState.amount,
                   );
                 },
-                child: Text("Transferer"),
+                child: const Text("Transferer"),
               ),
             ],
           );
