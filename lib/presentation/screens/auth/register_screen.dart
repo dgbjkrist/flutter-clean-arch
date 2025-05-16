@@ -6,19 +6,29 @@ import '../../cubits/auth/auth_cubit.dart';
 import '../../widgets/auth/custom_button.dart';
 import '../../widgets/auth/custom_text_field.dart';
 
-class LoginScreen extends StatefulWidget {
+class RegisterScreen extends StatefulWidget {
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _RegisterScreenState createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).primaryColor),
+          onPressed: () => context.go('/login'),
+        ),
+      ),
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
@@ -38,14 +48,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 40),
-                    // Image.asset(
-                    //   'assets/images/logo.png', // Add your logo
-                    //   height: 120,
-                    // ),
-                    const SizedBox(height: 40),
                     Text(
-                      'Welcome Back!',
+                      'Create Account',
                       style:
                           Theme.of(context).textTheme.headlineMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
@@ -54,13 +58,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Sign in to continue',
+                      'Sign up to get started',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: Colors.grey,
                           ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 40),
+                    CustomTextField(
+                      label: 'Full Name',
+                      controller: _nameController,
+                      prefixIcon: const Icon(Icons.person_outline),
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Please enter your name';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
                     CustomTextField(
                       label: 'Email',
                       controller: _emailController,
@@ -69,6 +85,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return 'Please enter your email';
+                        }
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            .hasMatch(value!)) {
+                          return 'Please enter a valid email';
                         }
                         return null;
                       },
@@ -83,25 +103,44 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (value?.isEmpty ?? true) {
                           return 'Please enter your password';
                         }
+                        if ((value?.length ?? 0) < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      label: 'Confirm Password',
+                      controller: _confirmPasswordController,
+                      isPassword: true,
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Please confirm your password';
+                        }
+                        if (value != _passwordController.text) {
+                          return 'Passwords do not match';
+                        }
                         return null;
                       },
                     ),
                     const SizedBox(height: 24),
                     CustomButton(
-                      text: 'Login',
+                      text: 'Register',
                       isLoading: state is AuthLoading,
-                      onPressed: _login,
+                      onPressed: _register,
                     ),
                     const SizedBox(height: 16),
                     TextButton(
-                      onPressed: () => context.go('/register'),
+                      onPressed: () => context.go('/login'),
                       child: RichText(
                         text: TextSpan(
-                          text: "Don't have an account? ",
+                          text: "Already have an account? ",
                           style: TextStyle(color: Colors.grey.shade600),
                           children: [
                             TextSpan(
-                              text: 'Sign Up',
+                              text: 'Sign In',
                               style: TextStyle(
                                 color: Theme.of(context).primaryColor,
                                 fontWeight: FontWeight.bold,
@@ -121,19 +160,22 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _login() {
+  void _register() {
     if (_formKey.currentState?.validate() ?? false) {
-      context.read<AuthCubit>().login(
+      context.read<AuthCubit>().register(
             email: _emailController.text,
             password: _passwordController.text,
+            name: _nameController.text,
           );
     }
   }
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 }

@@ -1,12 +1,14 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../domain/entities/stellar_account.dart';
 import '../../../domain/entities/transaction_history.dart';
-import '../../../domain/repositories/stellar_repository.dart';
-import '../../../domain/usecases/stellar/create_account_usecase.dart';
 import '../../../domain/usecases/stellar/add_trustline_usecase.dart';
+import '../../../domain/usecases/stellar/create_account_usecase.dart';
+import '../../../domain/usecases/stellar/get_account_details_usecase.dart';
+import '../../../domain/usecases/stellar/get_asset_balances_usecase.dart';
 import '../../../domain/usecases/stellar/get_transaction_history_usecase.dart';
-import '../../../domain/usecases/stellar/swap_xlm_to_usdc_usecase.dart';
 import '../../../domain/usecases/stellar/send_payment_usecase.dart';
+import '../../../domain/usecases/stellar/swap_xlm_to_usdc_usecase.dart';
 
 // State
 class StellarState {
@@ -55,11 +57,18 @@ class StellarCubit extends Cubit<StellarState> {
   final SwapXLMToUSDCUseCase swapToUSDC;
   final GetTransactionHistoryUseCase getTransactionHistory;
   final SendStellarPaymentUseCase sendPayment;
-  final StellarRepository repository;
+  final GetAssetBalancesUseCase getAssetBalances;
+  final GetAccountDetailsUseCase getAccountDetails;
 
-  StellarCubit(this.createAccount, this.addTrustline, this.swapToUSDC,
-      this.getTransactionHistory, this.repository, this.sendPayment)
-      : super(StellarState());
+  StellarCubit(
+    this.createAccount,
+    this.addTrustline,
+    this.swapToUSDC,
+    this.getTransactionHistory,
+    this.sendPayment,
+    this.getAssetBalances,
+    this.getAccountDetails,
+  ) : super(StellarState());
 
   Future<void> createStellarAccount() async {
     emit(state.copyWith(isLoading: true, error: null));
@@ -77,12 +86,15 @@ class StellarCubit extends Cubit<StellarState> {
     }
   }
 
-  Future<void> addUSDCTrustline() async {
-    if (state.account == null || state.account!.secretKey == null) return;
+  Future<void> addUSDCTrustline(String? secretKey) async {
+    if (secretKey == null) {
+      emit(state.copyWith(error: 'No secret key available'));
+      return;
+    }
 
     emit(state.copyWith(isLoading: true, error: null));
     try {
-      await addTrustline.execute(state.account!.secretKey!);
+      await addTrustline.execute(secretKey);
       emit(state.copyWith(
         isLoading: false,
         hasTrustline: true,
@@ -116,26 +128,25 @@ class StellarCubit extends Cubit<StellarState> {
     }
   }
 
-  Future<void> loadAccountDetails() async {
-    if (state.account == null) return;
+  Future<void> loadAccountDetails({String? publicKey}) async {
+    String? _publicKey = publicKey ?? state.account?.publicKey;
+
+    if (_publicKey == null) return;
 
     emit(state.copyWith(isLoading: true, error: null));
     try {
-      // Get transactions
-      final transactions = await getTransactionHistory.execute(
-        state.account!.publicKey,
-      );
-
-      // Get balances
-      final balances = await repository.getAssetBalances(
-        state.account!.publicKey,
-      );
+      final [account, transactions, balances] = await Future.wait([
+        getAccountDetails.execute(_publicKey),
+        getTransactionHistory.execute(_publicKey),
+        getAssetBalances.execute(_publicKey)
+      ]);
 
       emit(state.copyWith(
         isLoading: false,
-        transactions: transactions,
-        usdcBalance: balances['USDC'],
-        hasTrustline: balances.containsKey('USDC'),
+        account: account as StellarAccount,
+        transactions: transactions as List<TransactionHistory>,
+        usdcBalance: (balances as Map<String, dynamic>)['USDC'],
+        hasTrustline: (balances as Map<String, dynamic>).containsKey('USDC'),
       ));
     } catch (e) {
       emit(state.copyWith(

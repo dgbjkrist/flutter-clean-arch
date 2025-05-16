@@ -193,19 +193,54 @@ class StellarRepositoryImpl implements StellarRepository {
   Future<List<TransactionHistory>> getTransactionHistory(
       String publicKey) async {
     try {
-      final transactions = await sdk.payments.forAccount(publicKey).execute();
-      return transactions.records
-          .whereType<PaymentOperationResponse>()
-          .map((record) => TransactionHistory(
-                type: _getTransactionType(record),
-                amount: double.parse(record.amount),
-                assetCode: record.assetCode ?? 'XLM',
-                timestamp: DateTime.parse(record.createdAt),
-                from: record.from,
-                to: record.to,
-                memo: record.transactionHash,
-              ))
-          .toList();
+      // Get all operations instead of just payments
+      final operations = await sdk.operations.forAccount(publicKey).execute();
+      print("operations ==== ${operations.records.length}");
+      print("operations ==== ${operations.records}");
+
+      return operations.records.map((record) {
+        if (record is PaymentOperationResponse) {
+          return TransactionHistory(
+            type: _getTransactionType(record),
+            amount: double.parse(record.amount),
+            assetCode: record.assetCode ?? 'XLM',
+            timestamp: DateTime.parse(record.createdAt),
+            from: record.from,
+            to: record.to,
+            memo: record.transactionHash,
+          );
+        } else if (record is CreateAccountOperationResponse) {
+          return TransactionHistory(
+            type: 'Account Created',
+            amount: double.parse(record.startingBalance),
+            assetCode: 'XLM',
+            timestamp: DateTime.parse(record.createdAt),
+            from: record.funder,
+            to: record.account,
+            memo: record.transactionHash,
+          );
+        } else if (record is ChangeTrustOperationResponse) {
+          return TransactionHistory(
+            type: 'Trustline Added',
+            amount: 0.0,
+            assetCode: record.assetCode ?? 'USDC',
+            timestamp: DateTime.parse(record.createdAt),
+            from: record.trustor ?? '',
+            to: record.trustee ?? '',
+            memo: record.transactionHash,
+          );
+        }
+        // Default case for other operation types
+        return TransactionHistory(
+          type: record.type,
+          amount: 0.0,
+          assetCode: 'XLM',
+          timestamp: DateTime.parse(record.createdAt),
+          from: publicKey,
+          to: publicKey,
+          memo: record.transactionHash,
+        );
+      }).toList();
     } catch (e) {
       throw Exception('Error fetching transaction history: $e');
     }

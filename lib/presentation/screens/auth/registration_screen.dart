@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../cubits/stellar/stellar_cubit.dart';
+import 'package:go_router/go_router.dart';
+import '../../cubits/auth/auth_cubit.dart';
 
 class RegistrationScreen extends StatefulWidget {
   @override
@@ -12,21 +12,21 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _nameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Register')),
-      body: BlocConsumer<StellarCubit, StellarState>(
+      body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
-          if (state.error != null) {
+          if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error!)),
+              SnackBar(content: Text(state.message)),
             );
           }
-          if (state.account != null) {
-            // Navigate to home screen after successful registration
-            Navigator.of(context).pushReplacementNamed('/home');
+          if (state is AuthAuthenticated) {
+            context.go('/'); // Navigate to home using go_router
           }
         },
         builder: (context, state) {
@@ -44,6 +44,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                   SizedBox(height: 16),
                   TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(labelText: 'Name'),
+                    validator: (value) =>
+                        value?.isEmpty ?? true ? 'Required' : null,
+                  ),
+                  SizedBox(height: 16),
+                  TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(labelText: 'Password'),
                     obscureText: true,
@@ -51,7 +58,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         value?.isEmpty ?? true ? 'Required' : null,
                   ),
                   SizedBox(height: 24),
-                  if (state.isLoading)
+                  if (state is AuthLoading)
                     CircularProgressIndicator()
                   else
                     ElevatedButton(
@@ -69,7 +76,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   void _handleRegistration() {
     if (_formKey.currentState?.validate() ?? false) {
-      context.read<StellarCubit>().createStellarAccount();
+      context.read<AuthCubit>().register(
+            email: _emailController.text,
+            password: _passwordController.text,
+            name: _nameController.text,
+          );
     }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _nameController.dispose();
+    super.dispose();
   }
 }

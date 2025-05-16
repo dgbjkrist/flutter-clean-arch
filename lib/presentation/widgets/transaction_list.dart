@@ -24,85 +24,59 @@ class TransactionList extends StatelessWidget {
       itemCount: transactions.length,
       itemBuilder: (context, index) {
         final transaction = transactions[index];
-        return TransactionCard(transaction: transaction);
+        return ListTile(
+          leading: _getTransactionIcon(transaction.type),
+          title: Text(transaction.type),
+          subtitle: Text(
+            '${transaction.timestamp.toString().substring(0, 16)}',
+          ),
+          trailing: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                transaction.amount > 0
+                    ? '+${transaction.amount.toStringAsFixed(2)}'
+                    : transaction.amount.toStringAsFixed(2),
+                style: TextStyle(
+                  color: _getAmountColor(transaction.type),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                transaction.assetCode,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        );
       },
     );
   }
-}
 
-class TransactionCard extends StatelessWidget {
-  final TransactionHistory transaction;
-
-  const TransactionCard({
-    Key? key,
-    required this.transaction,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 4),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: _getTransactionColor(),
-          child: Icon(
-            _getTransactionIcon(),
-            color: Colors.white,
-          ),
-        ),
-        title: Text(transaction.type),
-        subtitle: Text(
-          '${_formatAddress(transaction.from)} → ${_formatAddress(transaction.to)}',
-        ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              '${transaction.amount} ${transaction.assetCode}',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: _getAmountColor(context),
-              ),
-            ),
-            Text(
-              timeago.format(transaction.timestamp),
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
-      ),
-    );
+  Icon _getTransactionIcon(String type) {
+    switch (type) {
+      case 'Sent':
+        return Icon(Icons.arrow_upward, color: Colors.red);
+      case 'Received':
+        return Icon(Icons.arrow_downward, color: Colors.green);
+      case 'Trustline Added':
+        return Icon(Icons.add_circle_outline, color: Colors.blue);
+      case 'Account Created':
+        return Icon(Icons.account_balance_wallet, color: Colors.green);
+      default:
+        return Icon(Icons.swap_horiz);
+    }
   }
 
-  Color _getTransactionColor() {
-    switch (transaction.type) {
-      case 'XLM Payment':
-        return Colors.blue;
-      case 'USDC Payment':
+  Color _getAmountColor(String type) {
+    switch (type) {
+      case 'Sent':
+        return Colors.red;
+      case 'Received':
         return Colors.green;
       default:
         return Colors.grey;
     }
-  }
-
-  IconData _getTransactionIcon() {
-    switch (transaction.type) {
-      case 'XLM Payment':
-        return Icons.currency_exchange;
-      case 'USDC Payment':
-        return Icons.attach_money;
-      default:
-        return Icons.swap_horiz;
-    }
-  }
-
-  Color _getAmountColor(BuildContext context) {
-    return transaction.from == transaction.to ? Colors.grey : Colors.green;
-  }
-
-  String _formatAddress(String address) {
-    if (address.length <= 8) return address;
-    return '${address.substring(0, 4)}...${address.substring(address.length - 4)}';
   }
 }

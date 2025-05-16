@@ -15,8 +15,8 @@ class TransactionApiService {
   Future<List<User>> fetchRecipients() async {
     await Future.delayed(Duration(seconds: 1));
     return [
-      User(id: "1", email: "user1@mail.com", name: "User One", balance: 100.0),
-      User(id: "2", email: "user2@mail.com", name: "User Two", balance: 50.0),
+      User(id: "1", email: "user1@mail.com", name: "User One"),
+      User(id: "2", email: "user2@mail.com", name: "User Two"),
     ];
   }
 

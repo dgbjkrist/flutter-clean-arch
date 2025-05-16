@@ -4,7 +4,9 @@ import '../../../domain/entities/user.dart';
 import '../../../domain/usecases/login_usecase.dart';
 import '../../../domain/usecases/logout_usecase.dart';
 import '../../../domain/usecases/register_usecase.dart';
+import '../../../domain/usecases/user/get_current_user_usecase.dart';
 
+// States
 abstract class AuthState {}
 
 class AuthInitial extends AuthState {}
@@ -24,38 +26,102 @@ class AuthError extends AuthState {
 }
 
 class AuthCubit extends Cubit<AuthState> {
-  final RegisterUseCase registerUseCase;
-  final LoginUseCase loginUseCase;
-  final LogoutUseCase logoutUseCase;
+  final LoginUseCase _loginUseCase;
+  final RegisterUseCase _registerUseCase;
+  final LogoutUseCase _logoutUseCase;
+  final GetCurrentUserUseCase _getCurrentUserUseCase;
 
-  AuthCubit(this.registerUseCase, this.loginUseCase, this.logoutUseCase)
-      : super(AuthInitial());
+  AuthCubit({
+    required LoginUseCase loginUseCase,
+    required RegisterUseCase registerUseCase,
+    required LogoutUseCase logoutUseCase,
+    required GetCurrentUserUseCase getCurrentUserUseCase,
+  })  : _loginUseCase = loginUseCase,
+        _registerUseCase = registerUseCase,
+        _logoutUseCase = logoutUseCase,
+        _getCurrentUserUseCase = getCurrentUserUseCase,
+        super(AuthInitial());
 
-  Future<void> login(String email, String password) async {
+  Future<void> register({
+    required String email,
+    required String password,
+    required String name,
+  }) async {
     emit(AuthLoading());
+
     try {
-      final user = await loginUseCase.execute(email, password);
+      final user = await _registerUseCase.execute(
+        email: email,
+        password: password,
+        name: name,
+      );
+
       emit(AuthAuthenticated(user));
-    } catch (e, st) {
-      print("e ==== $e");
-      print("st ==== $st");
-      emit(AuthError("Erreur de connexion"));
+    } catch (e) {
+      emit(AuthError('Registration failed: ${e.toString()}'));
     }
   }
 
-  Future<void> register(String email, String password) async {
+  Future<void> login({
+    required String email,
+    required String password,
+  }) async {
     emit(AuthLoading());
+
     try {
-      final user = await registerUseCase.execute(email, password);
+      final user = await _loginUseCase.execute(
+        email: email,
+        password: password,
+      );
       emit(AuthAuthenticated(user));
     } catch (e) {
-      emit(AuthError("Erreur d'inscription"));
+      emit(AuthError('Login failed: ${e.toString()}'));
     }
   }
 
   Future<void> logout() async {
     emit(AuthLoading());
-    await logoutUseCase.execute();
-    emit(AuthUnauthenticated());
+
+    try {
+      await _logoutUseCase.execute();
+      emit(AuthUnauthenticated());
+    } catch (e) {
+      emit(AuthError('Logout failed: ${e.toString()}'));
+    }
+  }
+
+  // Check if user is already authenticated
+  Future<void> checkAuthStatus() async {
+    try {
+      final user = await _getCurrentUserUseCase.execute();
+      if (user != null) {
+        emit(AuthAuthenticated(user));
+      } else {
+        emit(AuthUnauthenticated());
+      }
+    } catch (e) {
+      emit(AuthUnauthenticated());
+    }
+  }
+
+  // Helper method to get current authenticated user
+  User? getCurrentUser() {
+    final state = this.state;
+    if (state is AuthAuthenticated) {
+      return state.user;
+    }
+    return null;
+  }
+
+  // Helper method to check if user has Stellar account
+  bool get hasActiveStellarAccount {
+    final user = getCurrentUser();
+    return user?.hasStellarAccount ?? false;
+  }
+
+  // Helper method to check if user can perform Stellar operations
+  bool get canPerformStellarOperations {
+    final user = getCurrentUser();
+    return user?.canPerformStellarOperations ?? false;
   }
 }

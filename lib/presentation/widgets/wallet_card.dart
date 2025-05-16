@@ -19,6 +19,7 @@ class WalletCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Container(
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -30,82 +31,48 @@ class WalletCard extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Stellar Wallet',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Icon(
-                    Icons.account_balance_wallet,
-                    color: Colors.white,
-                    size: 32,
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
-              Text(
-                'Account ID',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Public Key: ${_formatAddress(account.publicKey)}',
+              style: TextStyle(color: Colors.white70),
+            ),
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _BalanceItem(
+                  label: 'XLM Balance',
+                  amount: account.balance,
+                  symbol: 'XLM',
                 ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                _formatAccountId(account.publicKey),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontFamily: 'monospace',
-                ),
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _BalanceDisplay(
-                    label: 'XLM Balance',
-                    amount: account.balance,
-                    symbol: 'XLM',
+                if (usdcBalance != null)
+                  _BalanceItem(
+                    label: 'USDC Balance',
+                    amount: usdcBalance!,
+                    symbol: 'USDC',
                   ),
-                  if (usdcBalance != null)
-                    _BalanceDisplay(
-                      label: 'USDC Balance',
-                      amount: usdcBalance!,
-                      symbol: 'USDC',
-                    ),
-                ],
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  String _formatAccountId(String id) {
-    if (id.length <= 12) return id;
-    return '${id.substring(0, 6)}...${id.substring(id.length - 6)}';
+  String _formatAddress(String address) {
+    if (address.length < 12) return address;
+    return '${address.substring(0, 6)}...${address.substring(address.length - 6)}';
   }
 }
 
-class _BalanceDisplay extends StatelessWidget {
+class _BalanceItem extends StatelessWidget {
   final String label;
   final double amount;
   final String symbol;
 
-  const _BalanceDisplay({
+  const _BalanceItem({
     required this.label,
     required this.amount,
     required this.symbol,
@@ -118,10 +85,7 @@ class _BalanceDisplay extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: 14,
-          ),
+          style: TextStyle(color: Colors.white70, fontSize: 12),
         ),
         SizedBox(height: 4),
         Text(

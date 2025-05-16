@@ -5,7 +5,10 @@ class LoginUseCase {
   final AuthRepository repository;
   LoginUseCase(this.repository);
 
-  Future<User> execute(String email, String password) async {
+  Future<User> execute({
+    required String email,
+    required String password,
+  }) async {
     return await repository.login(email, password);
   }
 }

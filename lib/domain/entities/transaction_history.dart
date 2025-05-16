@@ -7,7 +7,7 @@ class TransactionHistory {
   final String to;
   final String? memo;
 
-  const TransactionHistory({
+  TransactionHistory({
     required this.type,
     required this.amount,
     required this.assetCode,
