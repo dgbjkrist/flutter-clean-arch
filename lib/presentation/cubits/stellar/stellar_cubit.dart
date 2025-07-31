@@ -9,6 +9,8 @@ import '../../../domain/usecases/stellar/get_asset_balances_usecase.dart';
 import '../../../domain/usecases/stellar/get_transaction_history_usecase.dart';
 import '../../../domain/usecases/stellar/send_payment_usecase.dart';
 import '../../../domain/usecases/stellar/swap_xlm_to_usdc_usecase.dart';
+import '../../../domain/usecases/stellar/get_xlm_to_usdc_rate_usecase.dart';
+import '../../../domain/usecases/stellar/get_secret_key_usecase.dart';
 
 // State
 class StellarState {
@@ -59,6 +61,8 @@ class StellarCubit extends Cubit<StellarState> {
   final SendStellarPaymentUseCase sendPayment;
   final GetAssetBalancesUseCase getAssetBalances;
   final GetAccountDetailsUseCase getAccountDetails;
+  final GetXLMToUSDCRateUseCase getXLMToUSDCRate;
+  final GetSecretKeyUseCase getSecretKey;
 
   StellarCubit(
     this.createAccount,
@@ -68,6 +72,8 @@ class StellarCubit extends Cubit<StellarState> {
     this.sendPayment,
     this.getAssetBalances,
     this.getAccountDetails,
+    this.getXLMToUSDCRate,
+    this.getSecretKey,
   ) : super(StellarState());
 
   Future<void> createStellarAccount() async {
@@ -98,27 +104,6 @@ class StellarCubit extends Cubit<StellarState> {
       emit(state.copyWith(
         isLoading: false,
         hasTrustline: true,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      ));
-    }
-  }
-
-  Future<void> swapXLMToUSDC(double xlmAmount) async {
-    if (state.account == null || state.account!.secretKey == null) return;
-
-    emit(state.copyWith(isLoading: true, error: null));
-    try {
-      final newUsdcBalance = await swapToUSDC.execute(
-        secretKey: state.account!.secretKey!,
-        xlmAmount: xlmAmount,
-      );
-      emit(state.copyWith(
-        isLoading: false,
-        usdcBalance: newUsdcBalance,
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -201,6 +186,49 @@ class StellarCubit extends Cubit<StellarState> {
         isLoading: false,
         error: e.toString(),
       ));
+    }
+  }
+
+  Future<void> swapXLMToUSDC({
+    required double xlmAmount,
+    required double expectedUsdcAmount,
+  }) async {
+    final secretKey = await getSecretKey.execute();
+
+    if (secretKey == null) {
+      emit(state.copyWith(error: 'No secret key available'));
+      return;
+    }
+
+    emit(state.copyWith(isLoading: true, error: null));
+    try {
+      await swapToUSDC.execute(
+        secretKey: secretKey,
+        xlmAmount: xlmAmount,
+        expectedUsdcAmount: expectedUsdcAmount,
+      );
+
+      // Refresh balances after swap
+      await loadAccountDetails();
+
+      emit(state.copyWith(
+        isLoading: false,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      ));
+    }
+  }
+
+  Future<double> getRate() async {
+    try {
+      final rate = await getXLMToUSDCRate.execute(1.0);
+      return rate;
+    } catch (e) {
+      emit(state.copyWith(error: e.toString()));
+      throw e;
     }
   }
 }

@@ -37,6 +37,8 @@ import '../../presentation/cubits/stellar/stellar_cubit.dart';
 import '../../presentation/cubits/transfer/fees_bloc.dart';
 import '../../presentation/cubits/transfer/transfer_bloc.dart';
 import '../../presentation/cubits/transfer_cubit.dart';
+import '../../domain/usecases/stellar/get_xlm_to_usdc_rate_usecase.dart';
+import '../../domain/usecases/stellar/get_secret_key_usecase.dart';
 
 final sl = GetIt.instance;
 
@@ -85,6 +87,8 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton(() => SwapXLMToUSDCUseCase(sl()));
   sl.registerLazySingleton(() => GetAssetBalancesUseCase(sl()));
   sl.registerLazySingleton(() => GetAccountDetailsUseCase(sl()));
+  sl.registerLazySingleton(() => GetXLMToUSDCRateUseCase(sl()));
+  sl.registerLazySingleton(() => GetSecretKeyUseCase(sl()));
 
   // Cubits & Blocs
   sl.registerLazySingleton(() => LockScreenCubit(sl()));
@@ -100,6 +104,8 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton(() => BalanceCubit(sl(), sl()));
   sl.registerLazySingleton(() => TransferCubit());
   sl.registerLazySingleton(() => StellarCubit(
+        sl(),
+        sl(),
         sl(),
         sl(),
         sl(),

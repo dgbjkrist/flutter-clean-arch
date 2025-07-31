@@ -134,27 +134,49 @@ class StellarRepositoryImpl implements StellarRepository {
   }
 
   @override
+  Future<double> getXLMToUSDCRate(double xlmAmount) async {
+    try {
+      final pathsRequest = sdk.strictReceivePaths; // Get the builder
+      final paths = await pathsRequest
+          .sourceAssets([Asset.NATIVE])
+          .destinationAsset(Asset.createNonNativeAsset(USDC_CODE, USDC_ISSUER))
+          .destinationAmount("1") // We request path for 1 USDC
+          .execute();
+
+      if (paths.records.isEmpty) {
+        throw Exception('No path available for swap');
+      }
+
+      // Get the best path's rate
+      final bestPath = paths.records.first;
+      final rateForOneUSDC = double.parse(bestPath.sourceAmount);
+
+      return rateForOneUSDC; // This is how much XLM needed for 1 USDC
+    } catch (e) {
+      throw Exception('Error getting exchange rate: $e');
+    }
+  }
+
+  @override
   Future<void> swapXLMToUSDC({
     required String secretKey,
     required double xlmAmount,
-    required String usdcAssetCode,
-    required String usdcIssuer,
+    required double expectedUsdcAmount,
   }) async {
     try {
       final sourceKeypair = KeyPair.fromSecretSeed(secretKey);
       final sourceAccount = await sdk.accounts.account(sourceKeypair.accountId);
 
-      // Using a simple path payment to simulate swap
-      // In production, you'd want to use an actual DEX or liquidity pool
       final transaction = TransactionBuilder(sourceAccount)
           .addOperation(
-            PathPaymentStrictSendOperationBuilder(
-                    Asset.NATIVE,
-                    xlmAmount.toString(),
-                    sourceKeypair.accountId,
-                    Asset.createNonNativeAsset(usdcAssetCode, usdcIssuer),
-                    "0")
-                .build(),
+            PathPaymentStrictReceiveOperationBuilder(
+              Asset.NATIVE,
+              xlmAmount.toString(), // Maximum XLM we're willing to spend
+              sourceKeypair.accountId,
+              Asset.createNonNativeAsset(USDC_CODE, USDC_ISSUER),
+              expectedUsdcAmount
+                  .toString(), // Exact USDC amount we want to receive
+            ).build(),
           )
           .build();
 

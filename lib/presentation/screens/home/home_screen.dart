@@ -5,9 +5,9 @@ import '../../cubits/auth/auth_cubit.dart';
 import '../../cubits/stellar/stellar_cubit.dart';
 import '../../screens/payment/payment_screen.dart';
 import '../../widgets/action_button.dart';
-import '../../widgets/swap_bottom_sheet.dart';
 import '../../widgets/transaction_list.dart';
 import '../../widgets/wallet_card.dart';
+import '../swap/swap_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -136,7 +136,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               ActionButton(
                                 icon: Icons.swap_horiz,
                                 label: 'Swap',
-                                onTap: () => _showSwapDialog(context),
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => SwapScreen()),
+                                ),
                               ),
                               ActionButton(
                                 icon: Icons.send,
@@ -172,14 +176,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  void _showSwapDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => SwapBottomSheet(),
     );
   }
 }

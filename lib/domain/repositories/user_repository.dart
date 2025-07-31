@@ -5,4 +5,5 @@ abstract class UserRepository {
   Future<User?> getCurrentUser();
   Future<User> getUserBalance(String userId);
   Future<void> updateBalance(String userId, double newBalance);
+  Future<String?> getSecretKey();
 }

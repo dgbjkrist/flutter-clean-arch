@@ -61,7 +61,7 @@ class _LockScreenState extends State<LockScreen> {
                       label: 'Password',
                       controller: _passwordController,
                       isPassword: true,
-                      prefixIcon: const Icon(Icons.lock_outline),
+                      prefixIcon: Icons.lock_outline,
                     ),
                     const SizedBox(height: 24),
                     CustomButton(

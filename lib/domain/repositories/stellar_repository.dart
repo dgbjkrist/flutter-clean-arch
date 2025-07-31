@@ -19,11 +19,12 @@ abstract class StellarRepository {
     required String issuer,
   });
 
+  Future<double> getXLMToUSDCRate(double xlmAmount);
+
   Future<void> swapXLMToUSDC({
     required String secretKey,
     required double xlmAmount,
-    required String usdcAssetCode,
-    required String usdcIssuer,
+    required double expectedUsdcAmount,
   });
 
   Future<Map<String, double>> getAssetBalances(String publicKey);

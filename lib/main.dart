@@ -42,13 +42,12 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             title: 'Mon App',
             routerConfig: router,
+            theme: ThemeData(
+              useMaterial3: false,
+            ),
           );
         },
       ),
-      // child: MaterialApp(
-      //   title: 'Flutter Demo clean archi',
-      //   home: LoginScreen(),
-      // ),
     );
   }
 }

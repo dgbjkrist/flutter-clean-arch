@@ -51,4 +51,10 @@ class UserRepositoryImpl implements UserRepository {
       return null;
     }
   }
+
+  @override
+  Future<String?> getSecretKey() async {
+    final userModel = await localDataSource.getCurrentUser();
+    return userModel?.stellarAccount?.secretKey;
+  }
 }

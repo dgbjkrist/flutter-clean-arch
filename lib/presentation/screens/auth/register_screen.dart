@@ -68,7 +68,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     CustomTextField(
                       label: 'Full Name',
                       controller: _nameController,
-                      prefixIcon: const Icon(Icons.person_outline),
+                      prefixIcon: Icons.person_outline,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return 'Please enter your name';
@@ -81,7 +81,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       label: 'Email',
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      prefixIcon: const Icon(Icons.email_outlined),
+                      prefixIcon: Icons.email_outlined,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return 'Please enter your email';
@@ -98,7 +98,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       label: 'Password',
                       controller: _passwordController,
                       isPassword: true,
-                      prefixIcon: const Icon(Icons.lock_outline),
+                      prefixIcon: Icons.lock_outline,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return 'Please enter your password';
@@ -114,7 +114,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       label: 'Confirm Password',
                       controller: _confirmPasswordController,
                       isPassword: true,
-                      prefixIcon: const Icon(Icons.lock_outline),
+                      prefixIcon: Icons.lock_outline,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return 'Please confirm your password';

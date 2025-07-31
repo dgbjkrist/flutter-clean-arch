@@ -65,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       label: 'Email',
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      prefixIcon: const Icon(Icons.email_outlined),
+                      prefixIcon: Icons.email_outlined,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return 'Please enter your email';
@@ -78,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       label: 'Password',
                       controller: _passwordController,
                       isPassword: true,
-                      prefixIcon: const Icon(Icons.lock_outline),
+                      prefixIcon: Icons.lock_outline,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return 'Please enter your password';

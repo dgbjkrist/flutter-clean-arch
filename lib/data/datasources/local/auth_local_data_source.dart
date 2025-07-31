@@ -81,6 +81,7 @@ class AuthLocalDataSource {
 
   Future<UserModel?> getCurrentUser() async {
     final userJson = _prefs.getString(_currentUserKey);
+    print('userJson: $userJson');
     if (userJson == null) return null;
     return UserModel.fromJson(json.decode(userJson));
   }
